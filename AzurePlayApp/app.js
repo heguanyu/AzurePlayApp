@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var app = express();
-var port = 8080;
+var port = 8089;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -33,8 +33,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on the port::${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server listening on the port::${port}`);
+// });
 
 module.exports = app;
