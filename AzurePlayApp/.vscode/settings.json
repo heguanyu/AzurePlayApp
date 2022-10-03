@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/987275cc-193b-4b1c-bee0-3dde8d5b61e2/AppServices/subscriptions/987275cc-193b-4b1c-bee0-3dde8d5b61e2/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/AzurePlayApps",
+    "appService.deploySubpath": "."
+}
