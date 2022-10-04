@@ -11,10 +11,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(process.cwd()+"/webui/build/"));
+app.use(express.static(path.resolve(__dirname, './thegame/build')));
 
-app.get('/', (req,res) => {
-  res.sendFile(process.cwd()+"/my-app/build/index.html");
+app.get('/*', (req,res) => {
+  res.sendFile(path.resolve(__dirname, './thegame/build', 'index.html'));
 });
 
 // catch 404 and forward to error handler
