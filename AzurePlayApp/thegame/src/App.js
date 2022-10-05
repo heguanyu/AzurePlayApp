@@ -7,12 +7,12 @@ import { Ray, ActionManager, ExecuteCodeAction, Engine, Scene, Vector3, Vector4,
 
 
 let _frame=0, _camera = null, _players= {}, _meshedPlayers={}, _lockLoadingPlayer={}, _updating = false, _myid = null, _bots = {}, _meshedBots={}, _lockLoadingBot={};
-let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = null;
+let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = null, _hpBarText=null;
 // 0=input name; 1=game
 let _gamestates = 0;
 let _gui3dmanager = null;
-const host = "http://localhost:8089/"
-// const host = "";
+// const host = "http://localhost:8089/"
+const host = "";
 const meshFileNames = {
     "player": {
         fileName: "player.glb",
@@ -46,70 +46,6 @@ const meshFileNames = {
     }
 };
 
-// const host = ""
-const createGameScene = (engine) => {
-    // Create a basic BJS Scene object
-    let scene = new Scene(engine);
-    _gui3dmanager = new GUI3DManager(scene);
-    _gameadt = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-    // gravity
-    const fps = 60
-    const gravity = -9.81;
-    scene.gravity = new Vector3(0, gravity/fps, 0);
-    scene.collisionsEnabled = true;
-
-    _camera = new UniversalCamera('camera1', new Vector3(0, 1, 5), scene);
-    _camera.setTarget(Vector3.Zero());
-    _camera.attachControl(_canvas, false);
-
-    _camera.applyGravity = true;
-    _camera.checkCollisions = true;
-    _camera.ellipsoid = new Vector3(1,1,1);
-
-    _camera.minZ = 0.45;
-    _camera.speed = 0.5;
-    _camera.angularSensibility = 3000;
-
-    _camera.keysUp.push(87);
-    _camera.keysLeft.push(65);
-    _camera.keysDown.push(83);
-    _camera.keysRight.push(68);
-
-    // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
-    let light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene);
-
-    const skyboxTexture = new CubeTexture("textures/environment.env", scene);
-    scene.createDefaultSkybox(skyboxTexture, true, 1000, 0)
-
-    // Create a built-in "ground" shape;
-
-    var aim = new Image("but", "textures/redaim.png");
-    aim.width = "30px";
-    aim.height = "30px";
-    _gameadt.addControl(aim);
-
-    // Pointer lock
-    scene.onPointerDown = (e) => {
-        if (e.button == 0 && _gamestates == 1) {
-            engine.enterPointerlock();
-        }
-        else {
-            engine.exitPointerlock();
-        }
-
-        const origin = _camera.globalPosition.clone();
-        const forward = _camera.getDirection(Vector3.Forward());
-        const ray = new Ray(origin, forward, 200);
-
-        const hit = scene.pickWithRay(ray);
-        if (hit && hit.pickedMesh) {
-            hitTarget(hit.pickedMesh.name);
-        }
-
-    }
-    // Return the created scene
-    return scene;
-}
 async function hitTarget(target) {
     fetch(`${host}gamestatus/hittarget?target=${target}`).then((response)=>{
         if (!response.error) {
@@ -331,6 +267,86 @@ async function loadCharacter(id, type) {
         }
     });
 }
+function updateMyHp() {
+    if (!_players || !_myid || !_players[_myid]) {
+        return;
+    }
+    let mystats = _players[_myid];
+    _hpBarText.text = `HP [${mystats.hp} / ${mystats.fullHp}]`
+}
+const createGameScene = (engine) => {
+    // Create a basic BJS Scene object
+    let scene = new Scene(engine);
+    _gui3dmanager = new GUI3DManager(scene);
+    _gameadt = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    // gravity
+    const fps = 60
+    const gravity = -9.81;
+    scene.gravity = new Vector3(0, gravity/fps, 0);
+    scene.collisionsEnabled = true;
+
+    _camera = new UniversalCamera('camera1', new Vector3(0, 1, 5), scene);
+    _camera.setTarget(Vector3.Zero());
+    _camera.attachControl(_canvas, false);
+
+    _camera.applyGravity = true;
+    _camera.checkCollisions = true;
+    _camera.ellipsoid = new Vector3(1,1,1);
+
+    _camera.minZ = 0.45;
+    _camera.speed = 0.5;
+    _camera.angularSensibility = 3000;
+
+    _camera.keysUp.push(87);
+    _camera.keysLeft.push(65);
+    _camera.keysDown.push(83);
+    _camera.keysRight.push(68);
+
+    // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
+    let light = new HemisphericLight('light1', new Vector3(0, 1, 0), scene);
+
+    const skyboxTexture = new CubeTexture("textures/environment.env", scene);
+    scene.createDefaultSkybox(skyboxTexture, true, 1000, 0)
+
+    // Create a built-in "ground" shape;
+
+    var aim = new Image("but", "textures/redaim.png");
+    aim.width = "30px";
+    aim.height = "30px";
+    _gameadt.addControl(aim);
+
+    _hpBarText = new TextBlock();
+    _hpBarText.left = -700;
+    _hpBarText.top = -430;
+
+
+    _hpBarText.text = "Hello world";
+    _hpBarText.color = "red";
+    _hpBarText.fontSize = 24;
+    _gameadt.addControl(_hpBarText);
+
+    // Pointer lock
+    scene.onPointerDown = (e) => {
+        if (e.button == 0 && _gamestates == 1) {
+            engine.enterPointerlock();
+        }
+        else {
+            engine.exitPointerlock();
+        }
+
+        const origin = _camera.globalPosition.clone();
+        const forward = _camera.getDirection(Vector3.Forward());
+        const ray = new Ray(origin, forward, 200);
+
+        const hit = scene.pickWithRay(ray);
+        if (hit && hit.pickedMesh) {
+            hitTarget(hit.pickedMesh.name);
+        }
+
+    }
+    // Return the created scene
+    return scene;
+}
 const createLoadingScene = (engine) => {
     let scene = new Scene(engine);
     var camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
@@ -424,6 +440,7 @@ const onLoad = () => {
             _frame++;
             if (_frame%10 == 0) {
                 getPlayers()
+                updateMyHp();
             }
             if (_frame % 30 == 0) {
                 getBots();
