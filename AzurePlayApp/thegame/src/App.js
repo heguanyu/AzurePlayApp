@@ -1,7 +1,7 @@
 import './App.css';
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import {GUI3DManager, HolographicButton, TextBlock, AdvancedDynamicTexture, InputText, StackPanel, Button, Image} from "@babylonjs/gui"
+import {GUI3DManager, HolographicButton, TextBlock, AdvancedDynamicTexture, InputText, StackPanel, Button, Image, Button3D} from "@babylonjs/gui"
 import React, { useState, useEffect } from 'react';
 import { Ray, ActionManager, ExecuteCodeAction, Engine, Scene, Vector3, Vector4, Mesh, StandardMaterial, Texture, Color3, Color4, AbstractMesh, GlowLayer, PointLight, FreeCamera, CubeTexture, Sound, PostProcess, Effect, SceneLoader, Matrix, MeshBuilder, Quaternion, AssetsManager, HemisphericLight, UniversalCamera }  from "@babylonjs/core";
 
@@ -11,8 +11,8 @@ let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = nu
 // 0=input name; 1=game
 let _gamestates = 0;
 let _gui3dmanager = null;
-// const host = "http://localhost:8089/"
-const host = "";
+const host = "http://localhost:8089/"
+// const host = "";
 const meshFileNames = {
     "player": {
         fileName: "player.glb",
@@ -301,12 +301,16 @@ async function loadCharacter(id, type) {
     _gui3dmanager.addControl(button);
     button.linkToTransformNode(anchor);
     button.backMaterial.alpha = 0.0;
+    button.mesh.isPickable = false;
+    button.scaling = new Vector3( 5.0, 5.0, 5.0);
 
     var buttonText = new TextBlock();
+    buttonText.widthInPixels = 400;
+    buttonText.textWrapping = true;
     buttonText.text = id;
     buttonText.fontWeight = "bold";
     buttonText.color = "yellow";
-    buttonText.fontSize = 54;
+    buttonText.fontSize = 14;
     button.content = buttonText;
 
     return SceneLoader.ImportMeshAsync(null, "./models/", meshMetadata.fileName, _gameScene).then((result) =>{
