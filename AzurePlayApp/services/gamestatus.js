@@ -50,14 +50,16 @@ gamestatus.get('/getallbots', (req, res) => {
 
 gamestatus.get('/hittarget', (req, res) => {
     let target = req.query["target"];
+    let source = req.query["source"];
+    console.log(source);
     if (!target) {
         return res.send(200)
     }
     if (botService.isTargetABot(target)) {
-        return res.send(botService.hitBot(target))
+        return res.send(botService.hitBot(target, source))
     }
     else if (playerService.isTargetAPlayer(target)) {
-        return res.send(playerService.hitPlayer(target))
+        return res.send(playerService.hitPlayer(target, source))
     }
     else {
         return res.send(200)

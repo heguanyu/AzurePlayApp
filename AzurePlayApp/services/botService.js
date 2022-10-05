@@ -1,3 +1,5 @@
+const playerService = require("./playerService");
+
 const _bots = {};
 let _accum = 0;
 
@@ -29,19 +31,23 @@ function getAllBots() {
 function isTargetABot(botid) {
     return _bots[botid]!=null;
 }
-function hitBot(botid) {
+function hitBot(botid, source) {
     if (!_bots[botid]) {
         return {
             error: "Already died"
         }
     }
     _bots[botid].hp --;
-    if (_bots[botid].hp <= 0) {
+    if (_bots[botid].hp == 0) {
+        playerService.addScore(source, Math.floor(_bots[botid].speed))
         removeBot(botid);
         createBot();
         return {
             error: "Already died"
         }
+    }
+    if (_bots[botid].hp<0) {
+        removeBot(botid);
     }
     return "new bot generated";
 }

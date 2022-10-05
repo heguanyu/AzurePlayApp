@@ -1,13 +1,13 @@
 import './App.css';
 import "@babylonjs/inspector";
 import "@babylonjs/loaders/glTF";
-import {GUI3DManager, HolographicButton, TextBlock, AdvancedDynamicTexture, InputText, StackPanel, Button, Image, Button3D} from "@babylonjs/gui"
+import {GUI3DManager, HolographicButton, TextBlock, AdvancedDynamicTexture, InputText, StackPanel, Button, Image, Control} from "@babylonjs/gui"
 import React, { useState, useEffect } from 'react';
 import { Ray, ActionManager, ExecuteCodeAction, Engine, Scene, Vector3, Vector4, Mesh, StandardMaterial, Texture, Color3, Color4, AbstractMesh, GlowLayer, PointLight, FreeCamera, CubeTexture, Sound, PostProcess, Effect, SceneLoader, Matrix, MeshBuilder, Quaternion, AssetsManager, HemisphericLight, UniversalCamera }  from "@babylonjs/core";
 
 
 let _frame=0, _camera = null, _players= {}, _meshedPlayers={}, _lockLoadingPlayer={}, _updating = false, _myid = null, _bots = {}, _meshedBots={}, _lockLoadingBot={};
-let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = null, _hpBarText=null;
+let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = null, _hpBarText=null, _scoreText = null, _scoreBoard = null;
 // 0=input name; 1=game
 let _gamestates = 0;
 let _gui3dmanager = null;
@@ -47,7 +47,7 @@ const meshFileNames = {
 };
 
 async function hitTarget(target) {
-    fetch(`${host}gamestatus/hittarget?target=${target}`).then((response)=>{
+    fetch(`${host}gamestatus/hittarget?target=${target}&source=${_myid}`).then((response)=>{
         if (!response.error) {
             if (_bots[target]) {
                 _bots[target].hp--;
@@ -75,6 +75,14 @@ async function updatePlayers() {
          endgame();
          return Promise.resolve();
     }
+    let scores = [];
+    for(let i in _players) {
+        scores.push({score: _players[i].score, id: _players[i].id});
+    }
+    scores.sort((a,b) => {return b.score-a.score});
+    _scoreBoard.text = scores.map(x=>{
+        return `${x.id}: ${x.score}`
+    }).join('\n')
     for(let i in _players) {
         let player = _players[i];
         if (_lockLoadingPlayer[player.id] || player.id == _myid) {
@@ -170,6 +178,7 @@ async function getPlayers() {
             let stats = json[pid];
             tempMap[pid] = {
                 id: pid,
+                score: stats.score,
                 hp: stats.hp,
                 fullHp: stats.fullHp,
                 pos: new Vector3(stats.pos[0], stats.pos[1], stats.pos[2]),
@@ -273,6 +282,7 @@ function updateMyHp() {
     }
     let mystats = _players[_myid];
     _hpBarText.text = `HP [${mystats.hp} / ${mystats.fullHp}]`
+    _scoreText.text = `Score: ${mystats.score}`
 }
 const createGameScene = (engine) => {
     // Create a basic BJS Scene object
@@ -318,12 +328,30 @@ const createGameScene = (engine) => {
     _hpBarText = new TextBlock();
     _hpBarText.left = -700;
     _hpBarText.top = -430;
-
-
-    _hpBarText.text = "Hello world";
+    _hpBarText.text = "HP [0 / 0]";
     _hpBarText.color = "red";
     _hpBarText.fontSize = 24;
     _gameadt.addControl(_hpBarText);
+
+    _scoreText = new TextBlock();
+    _scoreText.left = 0;
+    _scoreText.top = -430;
+    _scoreText.text = "0";
+    _scoreText.color = "red";
+    _scoreText.fontSize = 24;
+    _gameadt.addControl(_scoreText);
+
+    _scoreBoard = new TextBlock();
+    _scoreBoard.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    _scoreBoard.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    _scoreBoard.left = 0;
+    _scoreBoard.textWrapping = true;
+    _scoreBoard.top = 0;
+    _scoreBoard.text = "0";
+    _scoreBoard.color = "red";
+    _scoreBoard.fontSize = 24;
+    _gameadt.addControl(_scoreBoard);
+
 
     // Pointer lock
     scene.onPointerDown = (e) => {

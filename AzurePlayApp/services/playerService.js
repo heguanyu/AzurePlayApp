@@ -15,6 +15,7 @@ function createPlayer(pid) {
         };
     }
     _players[pid] = {
+        score: 0,
         hp: 100,
         fullHp: 100,
         pos: [Math.random()*200 - 100, 0.5 , Math.random()*200 - 100],
@@ -25,14 +26,21 @@ function createPlayer(pid) {
 function isTargetAPlayer(pid) {
     return _players[pid]!=null;
 }
-function hitPlayer(pid) {
+function hitPlayer(pid, source) {
     if (!_players[pid]) {
         return {
             error: "Already died"
         }
     }
     _players[pid].hp --;
-    if (_players[pid].hp <= 0) {
+    if (_players[pid].hp == 0) {
+        addScore(source, 50);
+        removePlayer(pid);
+        return {
+            error: "Already died"
+        }
+    }
+    if (_players[pid].hp < 0) {
         removePlayer(pid);
         return {
             error: "Already died"
@@ -46,6 +54,12 @@ function getAllPlayers() {
 function removePlayer(pid) {
     delete _players[pid];
 }
+function addScore(pid, score) {
+    console.log(pid, score);
+    if (_players[pid]) {
+        _players[pid].score += score;
+    }
+}
 
 module.exports = {
     updatePlayer: updatePlayer,
@@ -53,5 +67,6 @@ module.exports = {
     getAllPlayers: getAllPlayers,
     isTargetAPlayer: isTargetAPlayer,
     hitPlayer: hitPlayer,
-    removePlayer:removePlayer
+    removePlayer:removePlayer,
+    addScore: addScore
 }
