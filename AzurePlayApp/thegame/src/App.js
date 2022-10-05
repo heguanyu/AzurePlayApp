@@ -11,7 +11,8 @@ let _canvas, _gameScene = null, _loadingScene = null, _adt = null, _gameadt = nu
 // 0=input name; 1=game
 let _gamestates = 0;
 let _gui3dmanager = null;
-const host = "http://localhost:8089/"
+// const host = "http://localhost:8089/"
+const host = "";
 const meshFileNames = {
     "player": {
         fileName: "player.glb",
