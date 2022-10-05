@@ -294,7 +294,7 @@ async function loadCharacter(id, type) {
 
     var anchor = new AbstractMesh(id, _gameScene);
     anchor.billboardMode = Mesh.BILLBOARDMODE_ALL;
-    anchor.position.y = 3.5;
+    anchor.position = new Vector3(anchor.position.x + meshMetadata.offset.x,  3.5 + meshMetadata.offset.y, anchor.position.x + meshMetadata.offset.z);
     anchor.parent = outer;
 
     var button = new HolographicButton("down");
