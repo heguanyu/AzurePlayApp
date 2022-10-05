@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const botService = require('./botService.js');
 const gamestatus = express.Router()
 const playerService = require("./playerService.js")
 
@@ -42,6 +43,25 @@ gamestatus.get('/logout', (req, res) => {
 
 gamestatus.get('/getallplayers', (req, res) => {
     res.send(playerService.getAllPlayers())
+});
+gamestatus.get('/getallbots', (req, res) => {
+    res.send(botService.getAllBots())
+});
+
+gamestatus.get('/hittarget', (req, res) => {
+    let target = req.query["target"];
+    if (!target) {
+        return res.send(200)
+    }
+    if (botService.isTargetABot(target)) {
+        return res.send(botService.hitBot(target))
+    }
+    else if (playerService.isTargetAPlayer(target)) {
+        return res.send(playerService.hitPlayer(target))
+    }
+    else {
+        return res.send(200)
+    }
 });
 
 

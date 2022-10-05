@@ -6,7 +6,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 let gamestatus = require('./services/gamestatus');
 let playerService = require('./services/playerService');
-let cors = require('cors')
+let cors = require('cors');
+const botService = require('./services/botService');
 
 var app = express();
 var port = 8089;
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 for(let i = 0; i < 15; i++) {
-  playerService.createPlayer("id-" + i)
+  botService.createBot()
 }
 
 app.use('/gamestatus', gamestatus)
